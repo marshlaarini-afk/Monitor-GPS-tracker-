@@ -5,122 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CYBER_COMMAND // TRACKING SYSTEM</title>
     <style>
-        body {
+        html, body {
             background-color: #05070c;
             color: #00ff66;
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
-            padding: 8px;
+            padding: 6px;
             box-sizing: border-box;
             font-size: 11px;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px dashed #00ff66;
-            padding-bottom: 5px;
-            margin-bottom: 8px;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            flex-shrink: 0;
         }
         .selector-box select {
             background: #000;
             color: #00ff66;
             border: 1px solid #00ff66;
-            padding: 3px;
+            padding: 2px;
             font-family: 'Courier New', Courier, monospace;
         }
-        /* Perbaikan Tampilan Jam agar tidak mepet */
         .clock-box {
             text-align: right;
-            font-size: 11px;
-            line-height: 1.4;
+            font-size: 10px;
+            line-height: 1.3;
             background: #000;
             border: 1px solid #00ff66;
-            padding: 2px 6px;
+            padding: 2px 4px;
         }
         .main-layout {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 8px;
-            align-items: stretch;
+            gap: 6px;
+            flex-grow: 1;
+            min-height: 0;
+            margin-bottom: 6px;
         }
         .left-panel {
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
         .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
+        }
+        .right-top-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            min-height: 0;
         }
         .box-container {
             border: 1px solid #00ff66;
             background: #0b0f19;
-            padding: 5px;
+            padding: 4px;
             position: relative;
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
         .box-container.full-height {
             flex-grow: 1;
         }
         .box-title {
-            font-size: 10px;
+            font-size: 9px;
             color: #aaa;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             text-transform: uppercase;
+            flex-shrink: 0;
         }
         #mainMap {
             width: 100%;
             flex-grow: 1;
-            min-height: 380px;
             border: none;
             background: #000;
+            min-height: 0;
         }
         iframe {
             width: 100%;
             border: none;
             background: #000;
+            flex-grow: 1;
+            min-height: 0;
         }
         .camera-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            gap: 4px;
+            flex-grow: 1;
+            min-height: 0;
+        }
+        .cam-box {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
         .cam-box img {
             width: 100%;
-            height: 110px;
+            flex-grow: 1;
             object-fit: cover;
             border: 1px solid #00ff66;
             background: #000;
+            min-height: 0;
         }
         .matrix-box {
-            height: 85px;
+            flex-grow: 1;
             overflow-y: auto;
             background: #020408;
             border: 1px solid #00ff66;
-            padding: 4px;
-            font-size: 10px;
+            padding: 3px;
+            font-size: 9px;
             color: #00ff66;
+            min-height: 0;
         }
         .terminal-container {
             border: 1px solid #00ff66;
             background: #020408;
-            padding: 5px;
-            margin-top: 8px;
-            height: 60px;
+            padding: 4px;
+            height: 42px;
             overflow-y: auto;
-            font-size: 10px;
+            font-size: 9px;
+            flex-shrink: 0;
         }
         .btn-maps {
             display: inline-block;
             background: #00ff66;
             color: #000;
             text-decoration: none;
-            padding: 3px 6px;
+            padding: 2px 5px;
             font-weight: bold;
-            font-size: 10px;
-            margin-bottom: 5px;
+            font-size: 9px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+        .bg-status {
+            font-size: 8px;
+            color: #00ffcc;
+            float: right;
         }
     </style>
 </head>
@@ -128,7 +161,7 @@
 
     <!-- Header Status -->
     <div class="header">
-        <div>[ COMMAND_CENTER : TRACKING SYSTEM ] &nbsp; <span style="color:#00ff66;">STATUS: TARGET_LOCKED [LIVE]</span></div>
+        <div>[ COMMAND_CENTER ] &nbsp; <span style="color:#00ff66;">[LIVE]</span></div>
         <div class="selector-box">
             Target: 
             <select id="targetSelect" onchange="switchTarget()">
@@ -141,7 +174,7 @@
     <!-- Main Layout -->
     <div class="main-layout">
         
-        <!-- Kolom Kiri: Peta Utama -->
+        <!-- Kolom Kiri: Peta Utama (GPS) -->
         <div class="left-panel">
             <div class="box-container full-height">
                 <a id="gmapsLink" href="#" target="_blank" class="btn-maps">Buka di Maps ↗</a>
@@ -149,31 +182,39 @@
             </div>
         </div>
 
-        <!-- Kolom Kanan: Peta Satelit Mini & Matrix Stream -->
+        <!-- Kolom Kanan: Sesuai Sketsa (Atas: Satelit & Matrix | Bawah: Live Camera) -->
         <div class="right-panel">
-            <div class="box-container">
-                <div class="box-title">SATELLITE_FEED</div>
-                <iframe id="satMap" src="about:blank" style="height: 110px;"></iframe>
-            </div>
+            
+            <!-- Baris Atas Kanan: Peta Satelit Mini & Matrix Stream -->
+            <div class="right-top-grid">
+                <div class="box-container">
+                    <div class="box-title">SATELLITE_FEED</div>
+                    <iframe id="satMap" src="about:blank"></iframe>
+                </div>
 
-            <div class="box-container">
-                <div class="box-title">LIVE_CAMERA_FEED (FRONT & BACK)</div>
-                <div class="camera-container">
-                    <div class="cam-box">
-                        <img id="imgFront" src="https://via.placeholder.com/320x240?text=No+Signal" alt="Kamera Depan">
-                        <div style="text-align:center; font-size:9px; margin-top:2px;">Kamera Depan</div>
-                    </div>
-                    <div class="cam-box">
-                        <img id="imgBack" src="https://via.placeholder.com/320x240?text=No+Signal" alt="Kamera Belakang">
-                        <div style="text-align:center; font-size:9px; margin-top:2px;">Kamera Belakang</div>
+                <div class="box-container">
+                    <div class="box-title">MATRIX_STREAM</div>
+                    <div class="matrix-box" id="matrixStream">
+                        > [SYSTEM] Stream worker initialized...<br>
                     </div>
                 </div>
             </div>
 
+            <!-- Baris Bawah Kanan: Live Camera Depan & Belakang -->
             <div class="box-container">
-                <div class="box-title">MATRIX_STREAM</div>
-                <div class="matrix-box" id="matrixStream">
-                    > [SYSTEM] Matrix stream initialized...<br>
+                <div class="box-title">
+                    LIVE_CAMERA (FRONT / BACK) 
+                    <span class="bg-status" id="bgSyncStatus">[SYNC: OK]</span>
+                </div>
+                <div class="camera-container">
+                    <div class="cam-box">
+                        <img id="imgFront" src="https://via.placeholder.com/320x240?text=Waiting..." alt="Kamera Depan">
+                        <div style="text-align:center; font-size:8px; margin-top:2px;">Depan</div>
+                    </div>
+                    <div class="cam-box">
+                        <img id="imgBack" src="https://via.placeholder.com/320x240?text=Waiting..." alt="Kamera Belakang">
+                        <div style="text-align:center; font-size:8px; margin-top:2px;">Belakang</div>
+                    </div>
                 </div>
             </div>
 
@@ -217,34 +258,25 @@
             terminalLog.scrollTop = terminalLog.scrollHeight;
         }
 
-        // Jam Real-time dengan format rapi (tidak mepet)
         setInterval(() => {
             const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0];
-            const dateStr = now.toLocaleDateString();
-            document.getElementById('clockDisplay').innerHTML = `${timeStr}<br>${dateStr}`;
+            document.getElementById('clockDisplay').innerHTML = `${now.toTimeString().split(' ')[0]}<br>${now.toLocaleDateString()}`;
         }, 1000);
 
-        // Efek Matrix Stream berjalan otomatis terus-menerus
         const matrixLogs = [
-            "SYS_ALLOC: 0x1F8F5F8F8",
-            "CONNECT: TCP_INTRUSION",
-            "BYPASS.AUTH: OK",
-            "INJECT_PAYLOAD: SUCCESS",
-            "PACKET_SYNC: SECURE",
-            "LISTENING_PORT: 443 [ACTIVE]",
-            "GPS_POLL: RELAY_OK"
+            "BG_WORKER: SYNCING_STREAM",
+            "PACKET_VERIFY: OK",
+            "CAM_SOCKET: LISTENING",
+            "INJECT_PAYLOAD: ACTIVE"
         ];
         
         setInterval(() => {
             const randomLog = matrixLogs[Math.floor(Math.random() * matrixLogs.length)];
-            const timeNow = new Date().toTimeString().split(' ')[0];
-            matrixStream.innerHTML += `> [${timeNow}] ${randomLog}<br>`;
+            matrixStream.innerHTML += `> [${new Date().toTimeString().split(' ')[0]}] ${randomLog}<br>`;
             matrixStream.scrollTop = matrixStream.scrollHeight;
-        }, 2500);
+        }, 3000);
 
-        // 1. Ambil Log Kamera Masuk
-        db.ref("camera_logs").limitToLast(30).on("child_added", (snapshot) => {
+        db.ref("camera_logs").limitToLast(50).on("child_added", (snapshot) => {
             const data = snapshot.val();
             if (data && data.targetId) {
                 if (!targetImages[data.targetId]) {
@@ -252,16 +284,12 @@
                 }
                 targetImages[data.targetId][data.cameraType] = data.image;
 
-                matrixStream.innerHTML += `> [${new Date().toTimeString().split(' ')[0]}] CAM_SYNC: ${data.cameraType} RECEIVED<br>`;
-                matrixStream.scrollTop = matrixStream.scrollHeight;
-
                 if (data.targetId === selectedTargetId) {
                     updateCameraUI(selectedTargetId);
                 }
             }
         });
 
-        // 2. Pantau Perubahan Data GPS Semua Target
         db.ref("targets").on("value", (snapshot) => {
             const targets = snapshot.val();
             if (!targets) {
@@ -293,7 +321,7 @@
             selectedTargetId = targetSelect.value;
             localStorage.setItem("selected_target_id", selectedTargetId);
             renderSelectedTargetData();
-            logTerminal(`[SYSTEM] Switched view to target: ${selectedTargetId}`);
+            logTerminal(`[SYSTEM] Switched focus to: ${selectedTargetId}`);
         }
 
         function renderSelectedTargetData() {
@@ -316,8 +344,8 @@
                 if (imgs.Depan) imgFront.src = imgs.Depan;
                 if (imgs.Belakang) imgBack.src = imgs.Belakang;
             } else {
-                imgFront.src = "https://via.placeholder.com/320x240?text=Waiting+Feed...";
-                imgBack.src = "https://via.placeholder.com/320x240?text=Waiting+Feed...";
+                imgFront.src = "https://via.placeholder.com/320x240?text=Waiting...";
+                imgBack.src = "https://via.placeholder.com/320x240?text=Waiting...";
             }
         }
     </script>
